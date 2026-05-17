@@ -1,6 +1,19 @@
 import type { User } from '@supabase/supabase-js'
+import { getAuthRedirectUrl } from './lib/site-url'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import { state } from './state'
+
+function clearAuthParamsFromUrl(): void {
+  if (typeof window === 'undefined') return
+  const { hash, search, pathname } = window.location
+  const cameFromEmailLink =
+    hash.includes('access_token') ||
+    hash.includes('type=signup') ||
+    hash.includes('type=email') ||
+    search.includes('code=')
+  if (!cameFromEmailLink) return
+  window.history.replaceState({}, document.title, pathname || '/')
+}
 
 export async function initAuth(onChange?: () => void): Promise<void> {
   if (!supabase) {
@@ -8,8 +21,16 @@ export async function initAuth(onChange?: () => void): Promise<void> {
     return
   }
 
+  const params = new URLSearchParams(window.location.search)
+  const code = params.get('code')
+  if (code) {
+    await supabase.auth.exchangeCodeForSession(code)
+    clearAuthParamsFromUrl()
+  }
+
   const { data } = await supabase.auth.getSession()
   state.user = data.session?.user ?? null
+  clearAuthParamsFromUrl()
 
   supabase.auth.onAuthStateChange((_event, session) => {
     state.user = session?.user ?? null
@@ -57,6 +78,7 @@ export async function signUpWithEmail(
     password,
     options: {
       data: { display_name: displayName.trim() || undefined },
+      emailRedirectTo: getAuthRedirectUrl(),
     },
   })
 
