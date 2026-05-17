@@ -468,11 +468,11 @@ function bindEvents(): void {
       const g = guideById(exerciseId)
       if (!g) return
       const sets = readLogSetForm(form)
-      if (!sets) return
+      if (!sets?.length) return
       addToBag(g.name, sets)
       form.reset()
       const setsInput = form.querySelector<HTMLInputElement>('input[name="sets"]')
-      if (setsInput) setsInput.value = '1'
+      if (setsInput) setsInput.value = '0'
       syncSetRows(form)
     })
   })
@@ -482,11 +482,11 @@ function bindEvents(): void {
       e.preventDefault()
       const exId = form.dataset.exerciseId!
       const sets = readLogSetForm(form)
-      if (!sets) return
+      if (!sets?.length) return
       addSet(exId, sets)
       form.reset()
       const setsInput = form.querySelector<HTMLInputElement>('input[name="sets"]')
-      if (setsInput) setsInput.value = '1'
+      if (setsInput) setsInput.value = '0'
       syncSetRows(form)
     })
   })

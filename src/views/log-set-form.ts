@@ -27,9 +27,9 @@ function renderLogSetFieldsInner(): string {
   return `
     <label class="field field--sets-count">
       <span>How many sets?</span>
-      <input type="number" name="sets" value="1" min="1" max="${MAX_SETS}" required />
+      <input type="number" name="sets" value="0" min="0" max="${MAX_SETS}" required />
     </label>
-    <p class="log-set-form__hint muted">Enter reps & weight for each set below.</p>
+    <p class="log-set-form__hint muted">Set how many sets you did, then enter reps & weight below.</p>
     <div class="set-rows" data-set-rows></div>
   `
 }
@@ -73,9 +73,10 @@ export function syncSetRows(form: HTMLFormElement): void {
   const setsInput = form.querySelector<HTMLInputElement>('input[name="sets"]')
   if (!container || !setsInput) return
 
+  const raw = Number(setsInput.value)
   const count = Math.min(
     MAX_SETS,
-    Math.max(1, Number(setsInput.value) || 1),
+    Math.max(0, Number.isNaN(raw) ? 0 : Math.floor(raw)),
   )
   setsInput.value = String(count)
 
@@ -93,7 +94,7 @@ export function syncSetRows(form: HTMLFormElement): void {
   ).join('')
 
   const hint = form.querySelector<HTMLElement>('.log-set-form__hint')
-  if (hint) hint.hidden = count === 1
+  if (hint) hint.hidden = count > 0
 }
 
 export function bindLogSetForms(root: ParentNode): void {
@@ -108,7 +109,7 @@ export function bindLogSetForms(root: ParentNode): void {
 
 export function readLogSetForm(form: HTMLFormElement): ExerciseSet[] | null {
   const rows = form.querySelectorAll('.set-row')
-  if (!rows.length) return null
+  if (!rows.length) return []
 
   const sets: ExerciseSet[] = []
   for (const row of rows) {
