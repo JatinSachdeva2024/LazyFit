@@ -2,6 +2,28 @@ import type { ExerciseSet } from '../types'
 
 const MAX_SETS = 20
 
+function parseSetsCount(value: string): number {
+  const raw = value.trim()
+  if (!raw) return 0
+  const n = parseInt(raw, 10)
+  if (Number.isNaN(n) || n < 0) return 0
+  return Math.min(MAX_SETS, n)
+}
+
+function parseReps(value: string): number | null {
+  const n = parseInt(value.trim(), 10)
+  if (Number.isNaN(n) || n < 1) return null
+  return n
+}
+
+function parseWeight(value: string): number | null {
+  const raw = value.trim().replace(',', '.')
+  if (!raw) return null
+  const n = parseFloat(raw)
+  if (Number.isNaN(n) || n < 0) return null
+  return n
+}
+
 export function renderLogSetForm(exerciseId: string): string {
   return `
     <form class="log-set-form add-to-bag-form" data-exercise-id="${exerciseId}">
@@ -27,7 +49,15 @@ function renderLogSetFieldsInner(): string {
   return `
     <label class="field field--sets-count">
       <span>How many sets?</span>
-      <input type="number" name="sets" value="0" min="0" max="${MAX_SETS}" required />
+      <input
+        type="text"
+        name="sets"
+        class="input--plain"
+        inputmode="numeric"
+        autocomplete="off"
+        placeholder="0"
+        value="0"
+      />
     </label>
     <p class="log-set-form__hint muted">Set how many sets you did, then enter reps & weight below.</p>
     <div class="set-rows" data-set-rows></div>
@@ -43,24 +73,23 @@ export function renderSetRow(index: number, prev?: Partial<ExerciseSet>): string
       <label class="field field--set field--set-inline">
         <span>Reps</span>
         <input
-          type="number"
-          class="set-row__reps"
+          type="text"
+          class="set-row__reps input--plain"
+          inputmode="numeric"
+          autocomplete="off"
           placeholder="10"
-          min="1"
           value="${reps}"
-          required
         />
       </label>
       <label class="field field--set field--set-inline">
         <span>kg</span>
         <input
-          type="number"
-          class="set-row__weight"
+          type="text"
+          class="set-row__weight input--plain"
+          inputmode="decimal"
+          autocomplete="off"
           placeholder="0"
-          min="0"
-          step="0.5"
           value="${weight}"
-          required
         />
       </label>
     </div>
@@ -73,19 +102,15 @@ export function syncSetRows(form: HTMLFormElement): void {
   const setsInput = form.querySelector<HTMLInputElement>('input[name="sets"]')
   if (!container || !setsInput) return
 
-  const raw = Number(setsInput.value)
-  const count = Math.min(
-    MAX_SETS,
-    Math.max(0, Number.isNaN(raw) ? 0 : Math.floor(raw)),
-  )
-  setsInput.value = String(count)
+  const count = parseSetsCount(setsInput.value)
 
   const existing: Partial<ExerciseSet>[] = []
   container.querySelectorAll('.set-row').forEach((row) => {
+    const repsEl = row.querySelector('.set-row__reps') as HTMLInputElement
+    const weightEl = row.querySelector('.set-row__weight') as HTMLInputElement
     existing.push({
-      reps: Number((row.querySelector('.set-row__reps') as HTMLInputElement)?.value) || undefined,
-      weight:
-        Number((row.querySelector('.set-row__weight') as HTMLInputElement)?.value) || undefined,
+      reps: parseReps(repsEl?.value ?? '') ?? undefined,
+      weight: parseWeight(weightEl?.value ?? '') ?? undefined,
     })
   })
 
@@ -103,6 +128,10 @@ export function bindLogSetForms(root: ParentNode): void {
     if (!setsInput || setsInput.dataset.bound === '1') return
     setsInput.dataset.bound = '1'
     setsInput.addEventListener('input', () => syncSetRows(form))
+    setsInput.addEventListener('blur', () => {
+      setsInput.value = String(parseSetsCount(setsInput.value))
+      syncSetRows(form)
+    })
     syncSetRows(form)
   })
 }
@@ -113,13 +142,11 @@ export function readLogSetForm(form: HTMLFormElement): ExerciseSet[] | null {
 
   const sets: ExerciseSet[] = []
   for (const row of rows) {
-    const reps = Number(
-      (row.querySelector('.set-row__reps') as HTMLInputElement)?.value,
-    )
-    const weight = Number(
-      (row.querySelector('.set-row__weight') as HTMLInputElement)?.value,
-    )
-    if (!reps || reps < 1 || weight < 0 || Number.isNaN(weight)) return null
+    const repsEl = row.querySelector('.set-row__reps') as HTMLInputElement
+    const weightEl = row.querySelector('.set-row__weight') as HTMLInputElement
+    const reps = parseReps(repsEl?.value ?? '')
+    const weight = parseWeight(weightEl?.value ?? '')
+    if (reps === null || weight === null) return null
     sets.push({ reps, weight })
   }
   return sets

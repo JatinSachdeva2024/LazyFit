@@ -2549,6 +2549,20 @@ input:focus {
   margin-bottom: 0.25rem;
 }
 
+/* Plain text fields for sets/reps/weight — no number spinners (mobile-friendly) */
+.log-set-form .input--plain {
+  font-size: 16px;
+  line-height: 1.25;
+  padding: 0.625rem 0.75rem;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+.log-set-form .input--plain:focus {
+  outline: 2px solid var(--text);
+  outline-offset: 0;
+}
+
 .log-set-form__hint {
   margin: 0 0 0.5rem;
   font-size: 0.75rem;
