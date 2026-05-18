@@ -1,6 +1,5 @@
 import { state } from '../state'
-import { formatBodyParts, formatDate, totalSets } from '../utils'
-import { escapeHtml } from './helpers'
+import { renderRecentSessionItem } from './workout-detail'
 
 export function renderHistory(): string {
   const sessions = [...state.sessions]
@@ -17,31 +16,8 @@ export function renderHistory(): string {
     ${
       sessions.length
         ? `
-      <ul class="history-list">
-        ${sessions
-          .map(
-            (s) => `
-          <li class="history-card card">
-            <div class="history-card__top">
-              <strong>${escapeHtml(s.label)}</strong>
-              <time>${formatDate(s.completedAt!)}</time>
-            </div>
-            <p class="muted">${escapeHtml(formatBodyParts(s.bodyParts))}</p>
-            <p class="history-stats">
-              ${s.exercises.length} exercises · ${totalSets(s.exercises)} sets
-            </p>
-            <button
-              type="button"
-              class="btn btn--outline btn--block btn--danger"
-              data-action="delete-session"
-              data-session-id="${s.id}"
-            >
-              Delete workout
-            </button>
-          </li>
-        `,
-          )
-          .join('')}
+      <ul class="recent-sessions">
+        ${sessions.map((s) => renderRecentSessionItem(s, { showDate: true })).join('')}
       </ul>
     `
         : '<p class="empty-state">No workouts yet. Complete a workout from your gym bag.</p>'

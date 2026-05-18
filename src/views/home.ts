@@ -6,8 +6,8 @@ import {
   START_ICON_SPLITS,
 } from '../components/start-icons'
 import { state } from '../state'
-import { formatBodyParts } from '../utils'
 import { escapeHtml } from './helpers'
+import { renderRecentSessionItem } from './workout-detail'
 
 function startTile(
   action: string,
@@ -106,20 +106,8 @@ export function renderHome(): string {
           <h2 class="section-title">Recent</h2>
           <button type="button" class="link-btn" data-action="go-history">View all</button>
         </div>
-        <ul class="list">
-          ${recent
-            .map(
-              (s) => `
-            <li class="list-item">
-              <div>
-                <strong>${escapeHtml(s.label)}</strong>
-                <span class="muted">${escapeHtml(formatBodyParts(s.bodyParts))}</span>
-              </div>
-              <span class="badge">${s.exercises.length} exercises</span>
-            </li>
-          `,
-            )
-            .join('')}
+        <ul class="recent-sessions">
+          ${recent.map((s) => renderRecentSessionItem(s)).join('')}
         </ul>
       </section>
     `

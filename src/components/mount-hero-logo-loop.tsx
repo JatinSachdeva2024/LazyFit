@@ -1,29 +1,18 @@
 import { createRoot, type Root } from 'react-dom/client'
-import {
-  HERO_LOOP_SPRITES,
-  HERO_LOOP_SPRITE_COLS,
-  HERO_LOOP_SPRITE_ROWS,
-  HERO_LOOP_SPRITE_URL,
-  spriteBackgroundPosition,
-} from './hero-loop-sprites'
+import { HERO_LOOP_ICONS } from './hero-loop-icons'
 import LogoLoop, { type LogoItem } from './LogoLoop/LogoLoop'
 
 let root: Root | null = null
 
+const HERO_ICON_HEIGHT = 64
+
 function heroLogos(): LogoItem[] {
-  return HERO_LOOP_SPRITES.map(({ title, col, row }) => ({
+  return HERO_LOOP_ICONS.map(({ title, src, width, height }) => ({
     title,
-    node: (
-      <span
-        className="hero-loop-sprite"
-        style={{
-          backgroundImage: `url(${HERO_LOOP_SPRITE_URL})`,
-          backgroundSize: `${HERO_LOOP_SPRITE_COLS * 100}% ${HERO_LOOP_SPRITE_ROWS * 100}%`,
-          backgroundPosition: spriteBackgroundPosition(col, row),
-        }}
-        aria-hidden
-      />
-    ),
+    src,
+    alt: title,
+    width,
+    height,
   }))
 }
 
@@ -33,15 +22,15 @@ export function mountHeroLogoLoop(container: HTMLElement): void {
   root.render(
     <LogoLoop
       logos={heroLogos()}
-      speed={100}
+      speed={90}
       direction="left"
-      logoHeight={56}
-      gap={28}
-      fadeOut
-      fadeOutColor="#030508"
+      logoHeight={HERO_ICON_HEIGHT}
+      gap={40}
+      fadeOut={false}
       scaleOnHover
       pauseOnHover
       ariaLabel="Fitness motivation icons"
+      className="hero-logo-loop"
     />,
   )
 }

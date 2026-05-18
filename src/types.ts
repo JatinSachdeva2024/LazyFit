@@ -17,6 +17,7 @@ export interface ExerciseSet {
 export interface LoggedExercise {
   id: string
   name: string
+  bodyPart?: BodyPart
   sets: ExerciseSet[]
 }
 

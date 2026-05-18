@@ -264,6 +264,38 @@ export const EXERCISE_GUIDES: ExerciseGuide[] = [
     tips: 'Keep chest glued to the pad throughout.',
   },
   {
+    id: 'dumbbell-curl',
+    name: 'Dumbbell Curl',
+    bodyPart: 'biceps',
+    animation: 'curl',
+    media: '/bicep/Dumbbell-Curl.gif',
+    sets: '3-4',
+    reps: '10-12',
+    steps: [
+      'Stand tall with a dumbbell in each hand, palms facing in',
+      'Curl one dumbbell toward your shoulder, elbow at your side',
+      'Lower with control, then repeat on the other arm',
+      'Keep your torso still — no swinging',
+    ],
+    tips: 'Squeeze the biceps at the top; control the negative on the way down.',
+  },
+  {
+    id: 'hammer-curl',
+    name: 'Hammer Curl',
+    bodyPart: 'biceps',
+    animation: 'curl',
+    media: '/bicep/Hammer-Curl.gif',
+    sets: '3-4',
+    reps: '10-12',
+    steps: [
+      'Stand with dumbbells at your sides, neutral grip (palms in)',
+      'Curl one dumbbell up keeping your palm facing your body',
+      'Lower with control, then curl the other arm',
+      'Keep elbows tucked — only forearms move',
+    ],
+    tips: 'Hammer curls hit the brachialis and forearms as well as the biceps.',
+  },
+  {
     id: 'incline-dumbbell-curls',
     name: 'Incline Dumbbell Curls',
     bodyPart: 'biceps',
@@ -312,6 +344,22 @@ export const EXERCISE_GUIDES: ExerciseGuide[] = [
     tips: 'Keep elbows pinned to your sides throughout.',
   },
   {
+    id: 'pull-up',
+    name: 'Pull-Up',
+    bodyPart: 'biceps',
+    animation: 'pull',
+    media: '/bicep/Pull-up.gif',
+    sets: '3-4',
+    reps: '8-12',
+    steps: [
+      'Hang from the bar with hands shoulder-width, palms facing you',
+      'Pull your chest toward the bar, driving elbows down',
+      'Pause briefly at the top',
+      'Lower with control to full hang',
+    ],
+    tips: 'Chin-ups emphasize biceps more than wide-grip pull-ups.',
+  },
+  {
     id: 'cable-rope-overhead-extension',
     name: 'Cable Rope Overhead Triceps Extension',
     bodyPart: 'triceps',
@@ -328,6 +376,22 @@ export const EXERCISE_GUIDES: ExerciseGuide[] = [
     tips: 'Keep upper arms still — only forearms move.',
   },
   {
+    id: 'rope-pushdown',
+    name: 'Rope Pushdown',
+    bodyPart: 'triceps',
+    animation: 'push',
+    media: '/tricep/Rope-Pushdown.gif',
+    sets: '3-4',
+    reps: '10-12',
+    steps: [
+      'Stand at high cable with rope attachment',
+      'Pin elbows at your sides, grip the rope',
+      'Push down until arms are fully extended',
+      'Return slowly, spreading the rope slightly at the bottom',
+    ],
+    tips: 'Squeeze triceps hard at full extension; don’t let elbows drift forward.',
+  },
+  {
     id: 'one-arm-triceps-pushdown',
     name: 'One-Arm Triceps Pushdown',
     bodyPart: 'triceps',
@@ -342,6 +406,22 @@ export const EXERCISE_GUIDES: ExerciseGuide[] = [
       'Return slowly without moving the elbow',
     ],
     tips: 'Squeeze triceps at the bottom — don’t swing.',
+  },
+  {
+    id: 'skull-crusher',
+    name: 'Skull Crusher',
+    bodyPart: 'triceps',
+    animation: 'push',
+    media: '/tricep/Skull-crusher.gif',
+    sets: '3-4',
+    reps: '10-12',
+    steps: [
+      'Lie on a flat bench holding an EZ bar or barbell',
+      'Extend arms toward the ceiling over your chest',
+      'Bend elbows to lower the bar toward your forehead',
+      'Press back up to lockout without flaring elbows',
+    ],
+    tips: 'Keep upper arms vertical — only hinge at the elbows.',
   },
   {
     id: 'triceps-dips',
@@ -562,4 +642,9 @@ export function exerciseCountForPart(part: BodyPart, day?: SplitDay): number {
 
 export function guideById(id: string): ExerciseGuide | undefined {
   return EXERCISE_GUIDES.find((g) => g.id === id)
+}
+
+export function guideByName(name: string): ExerciseGuide | undefined {
+  const key = name.trim().toLowerCase()
+  return EXERCISE_GUIDES.find((g) => g.name.toLowerCase() === key)
 }

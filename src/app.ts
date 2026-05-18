@@ -16,7 +16,14 @@ import {
   uid,
 } from './storage'
 import { navigate, state } from './state'
-import type { BodyPart, SplitDay, WorkoutSession, WorkoutSplit } from './types'
+import type {
+  BodyPart,
+  ExerciseSet,
+  LoggedExercise,
+  SplitDay,
+  WorkoutSession,
+  WorkoutSplit,
+} from './types'
 import { renderBodyParts } from './views/body-parts'
 import { renderCreateSplit } from './views/create-split'
 import { renderCustomSplits } from './views/custom-splits'
@@ -30,9 +37,7 @@ import {
   bindLogSetForms,
   formatSetSummary,
   readLogSetForm,
-  syncSetRows,
 } from './views/log-set-form'
-import type { ExerciseSet, LoggedExercise } from './types'
 import { renderSplitDay } from './views/split-day'
 import { renderSplitDetail } from './views/split-detail'
 import { renderSplits } from './views/splits'
@@ -398,9 +403,16 @@ function bindEvents(): void {
       case 'discard-workout':
         discardWorkout()
         break
+      case 'toggle-session-detail': {
+        const id = target.dataset.sessionId!
+        state.expandedSessionId = state.expandedSessionId === id ? null : id
+        render()
+        break
+      }
       case 'delete-session': {
         const id = target.dataset.sessionId!
         if (confirm('Delete this workout permanently?')) {
+          if (state.expandedSessionId === id) state.expandedSessionId = null
           deleteSession(id)
         }
         break
@@ -469,11 +481,8 @@ function bindEvents(): void {
       if (!g) return
       const sets = readLogSetForm(form)
       if (!sets?.length) return
-      addToBag(g.name, sets)
+      addToBag(g.name, sets, g.bodyPart)
       form.reset()
-      const setsInput = form.querySelector<HTMLInputElement>('input[name="sets"]')
-      if (setsInput) setsInput.value = '0'
-      syncSetRows(form)
     })
   })
 
@@ -485,9 +494,6 @@ function bindEvents(): void {
       if (!sets?.length) return
       addSet(exId, sets)
       form.reset()
-      const setsInput = form.querySelector<HTMLInputElement>('input[name="sets"]')
-      if (setsInput) setsInput.value = '0'
-      syncSetRows(form)
     })
   })
 
@@ -586,10 +592,14 @@ function pushSets(ex: LoggedExercise, sets: ExerciseSet[]): void {
   ex.sets.push(...sets)
 }
 
-async function addToBag(name: string, sets: ExerciseSet[]): Promise<void> {
+async function addToBag(
+  name: string,
+  sets: ExerciseSet[],
+  bodyPart?: BodyPart,
+): Promise<void> {
   if (!name || !sets.length) return
   ensureWorkoutSession()
-  addExercise(name, { silent: true })
+  addExercise(name, { silent: true, bodyPart })
   const ex = state.activeSession!.exercises.find(
     (e) => e.name.toLowerCase() === name.toLowerCase(),
   )
@@ -605,16 +615,23 @@ async function addToBag(name: string, sets: ExerciseSet[]): Promise<void> {
   }
 }
 
-function addExercise(name: string, options?: { silent?: boolean }): void {
+function addExercise(
+  name: string,
+  options?: { silent?: boolean; bodyPart?: BodyPart },
+): void {
   if (!state.activeSession || !name) return
-  const exists = state.activeSession.exercises.some(
+  const exists = state.activeSession.exercises.find(
     (e) => e.name.toLowerCase() === name.toLowerCase(),
   )
-  if (exists) return
+  if (exists) {
+    if (options?.bodyPart && !exists.bodyPart) exists.bodyPart = options.bodyPart
+    return
+  }
 
   state.activeSession.exercises.push({
     id: uid(),
     name,
+    bodyPart: options?.bodyPart,
     sets: [],
   })
   persistActive()
@@ -686,6 +703,7 @@ function discardWorkout(): void {
 function deleteSession(sessionId: string): void {
   state.sessions = state.sessions.filter((s) => s.id !== sessionId)
   saveSessions(state.sessions)
+  showToast('Workout deleted')
   render()
 }
 

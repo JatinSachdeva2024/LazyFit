@@ -19,6 +19,8 @@ export interface AppState {
   selectedBodyParts: BodyPart[]
   selectedBodyPartLabel: string | null
   selectedExerciseId: string | null
+  /** Home / history: expanded completed workout detail */
+  expandedSessionId: string | null
 }
 
 export const state: AppState = {
@@ -36,6 +38,7 @@ export const state: AppState = {
   selectedBodyParts: [],
   selectedBodyPartLabel: null,
   selectedExerciseId: null,
+  expandedSessionId: null,
   returnView: 'home',
 }
 
